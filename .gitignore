@@ -6,6 +6,7 @@
 gen.o
 symtab.o
 ast.o
+*.exe
 
 
 # Prerequisites

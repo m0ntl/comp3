@@ -304,6 +304,20 @@ void Block::genStmt()
 
 void SwitchStmt::genStmt()
 { 
+    int defaultlabel = newlabel ();
+    
+    int caselabel1 = newlabel ();
+    int caselabel2 = newlabel ();
+    int caselabel3 = newlabel ();
+    
+    int exitlabel = newlabel ();
+    
+    _exp -> genExp ();
+
+    /*_caselist.Stmt -> genStmt ();*/
+
+    emitlabel(exitlabel);
+
     emit("switch statements not implemented yet\n");
 }
 

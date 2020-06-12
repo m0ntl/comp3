@@ -308,29 +308,37 @@ void SwitchStmt::genStmt()
 	int exitlabel = newlabel();
 	int default_stmt_label = newlabel();
 	Object result = _exp->genExp();
-	// int res = result->result;
+	// Cha res = Object(result);
+	Case* temp = _caselist;
 
 	exitlabels.push(exitlabel);
 	BreakStmt *case_break = new BreakStmt(_line);
 	if (_exp->_type == _INT)
 	{
 		Case* currect_case = _caselist;
+
 		while (currect_case != NULL)
 		{
-			emit("if _t%d == %d goto label%d\n",result, currect_case->_number,currect_case->_label);
-
+			//temp->_label = newlabel();
+			continuelabels.push(currect_case->_label);
+			emit("if %s == %d goto label%d\n",result._string, currect_case->_number,currect_case->_label);
 			currect_case = currect_case->_next;
 		} 
-		emit("goto label%d\n", default_stmt_label);	
+
+		currect_case = _caselist;
 		while (currect_case != NULL)
 		{
 			currect_case->_label = newlabel();
-			emitlabel(currect_case->_label);
+			//emitlabel(currect_case->_label);
 			currect_case->_stmt->genStmt();
 			if (currect_case->_hasBreak)
 				case_break->genStmt();
 			currect_case = currect_case->_next;
 		}
+		currect_case = _caselist;
+
+		emit("goto label%d\n", default_stmt_label);	
+
 		emitlabel(default_stmt_label);
 		_default_stmt->genStmt();
 		case_break->genStmt();

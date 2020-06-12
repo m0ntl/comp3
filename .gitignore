@@ -7,7 +7,7 @@ gen.o
 symtab.o
 ast.o
 *.exe
-
+.git
 
 # Prerequisites
 *.d

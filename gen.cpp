@@ -16,6 +16,7 @@
 */
 static	  
 std::stack<int> continuelabels;
+static std::stack<int> exitlabels;
 
 static
 Object newTemp()
@@ -304,27 +305,58 @@ void Block::genStmt()
 
 void SwitchStmt::genStmt()
 { 
-    int defaultlabel = newlabel ();
-    
-    int caselabel1 = newlabel ();
-    int caselabel2 = newlabel ();
-    int caselabel3 = newlabel ();
-    
-    int exitlabel = newlabel ();
-    
-    _exp -> genExp ();
-
-    /*_caselist.Stmt -> genStmt ();*/
-
-    emitlabel(exitlabel);
-
     emit("switch statements not implemented yet\n");
+	int check_cases = newlabel();
+	int exitlabel = newlabel();
+	int default_stmt_label = newlabel();
+	Object result = _exp->genExp();
+
+	exitlabels.push(exitlabel);
+	BreakStmt *case_break = new BreakStmt(_line);
+	if (_exp->_type == _INT)
+	{
+		emit("goto label%d\n", check_cases);
+		Case* currect_case = _caselist;
+		
+		while (currect_case != NULL)
+		{
+			currect_case->_label = newlabel();
+			emitlabel(currect_case->_label);
+			currect_case->_stmt->genStmt();
+			if (currect_case->_hasBreak)
+				case_break->genStmt();
+			currect_case = currect_case->_next;
+		}
+		emitlabel(default_stmt_label);
+		_default_stmt->genStmt();
+		case_break->genStmt();
+
+		currect_case = _caselist;
+		while (currect_case != NULL)
+		{
+			emit("if _t%d == %d goto label%d\n",result, currect_case->_number,currect_case->_label);
+			currect_case = currect_case->_next;
+		} 
+		emit("goto label%d\n", default_stmt_label);
+	}
+	exitlabels.pop();
+	emitlabel(exitlabel);
+
 }
 
 void BreakStmt::genStmt()
 {
-    emit("break statements not implemented yet\n");
-}
+	if (exitlabels.empty())
+	{
+		errorMsg("line %d - break statement not in a valid statement.\n", _line);
+	}
+	else
+	{
+
+		int label = exitlabels.top();
+		emit("goto label%d\n", label);
+	}
+	}
 	
 void ContinueStmt::genStmt()
 {

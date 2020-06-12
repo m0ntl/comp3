@@ -32,7 +32,7 @@ public:
         
 	
     virtual Object genExp() = 0; // every subclass should override this (or be abstract too)
-    
+    // virtual int genExp () = 0;
     Exp() { /*_result = -1;*/ _type = UNKNOWN; }	
     // Exp (int result, myType _type) : ASTnode () { this->_result = result; this->_type = _type; }
 #if 0

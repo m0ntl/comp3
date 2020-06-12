@@ -305,19 +305,23 @@ void Block::genStmt()
 
 void SwitchStmt::genStmt()
 { 
-    emit("switch statements not implemented yet\n");
-	int check_cases = newlabel();
 	int exitlabel = newlabel();
 	int default_stmt_label = newlabel();
 	Object result = _exp->genExp();
+	// int res = result->result;
 
 	exitlabels.push(exitlabel);
 	BreakStmt *case_break = new BreakStmt(_line);
 	if (_exp->_type == _INT)
 	{
-		emit("goto label%d\n", check_cases);
 		Case* currect_case = _caselist;
-		
+		while (currect_case != NULL)
+		{
+			emit("if _t%d == %d goto label%d\n",result, currect_case->_number,currect_case->_label);
+
+			currect_case = currect_case->_next;
+		} 
+		emit("goto label%d\n", default_stmt_label);	
 		while (currect_case != NULL)
 		{
 			currect_case->_label = newlabel();
@@ -332,13 +336,13 @@ void SwitchStmt::genStmt()
 		case_break->genStmt();
 
 		currect_case = _caselist;
-		while (currect_case != NULL)
-		{
-			emit("if _t%d == %d goto label%d\n",result, currect_case->_number,currect_case->_label);
-			currect_case = currect_case->_next;
-		} 
-		emit("goto label%d\n", default_stmt_label);
+
 	}
+	else
+	{
+		errorMsg("switch stmt - int Expected in line num: %d", _line);
+	}
+	
 	exitlabels.pop();
 	emitlabel(exitlabel);
 

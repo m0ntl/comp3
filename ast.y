@@ -49,7 +49,7 @@ int errors;
 
 %token <ival> INT_NUM
 %token <fval> FLOAT_NUM
-%token <op> ADDOP MULOP RELOP
+%token <op> ADDOP MULOP RELOP XOROP
 %token <name> ID
 
 %token READ IF ELSE WHILE  FOR INT FLOAT
@@ -157,11 +157,14 @@ expression : expression ADDOP expression {
                   $$ = new BinaryOp ($2, $1, $3, @2.first_line); } |
 		     expression MULOP expression {
                   $$ = new BinaryOp ($2, $1, $3, @2.first_line); };
-             
+
+
 expression: '(' expression ')' { $$ = $2; } |
             ID          { $$ = new IdNode ($1, @1.first_line);} |
             INT_NUM     { $$ = new NumNode ($1); } |
 			FLOAT_NUM   { $$ = new NumNode ($1); };
+
+
 			
 boolexp: expression RELOP expression { $$ = new SimpleBoolExp ($2, $1, $3); };
 
@@ -216,8 +219,5 @@ void errorMsg (const char *format, ...)
 	errors++;
 } 
 
-
-
-
-
+// expression : expression XOR expression { $$ = new Xor ($1, $3); };
 

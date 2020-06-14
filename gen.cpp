@@ -112,6 +112,27 @@ Object BinaryOp::genExp ()
 	return result;
 }
 
+// Object Binary2Op::genExp ()
+// {
+//     if (_left->_type != _right->_type)
+//         return Object(); //  this means an error was found
+// 	// if (_left->_type != _right->_type)
+//     //     return Object(); //  this means an error was found
+
+// 	// Object left_operand_result = _left->genExp ();
+// 	// Object right_operand_result = _right->genExp ();
+	
+// 	// Object result = newTemp ();
+	
+// 	// const char *the_op = opName (_op, _type);
+// 	if(_left == 0){
+
+//   	emit ("%s = %s %s %s\n", result._string, left_operand_result._string, 
+//                                    the_op, right_operand_result._string);
+// 				}
+// 	return result;
+// }
+
 Object NumNode::genExp () 
 {
     return (_type == _INT) ? Object(_u.ival) : Object(_u.fval);
@@ -239,6 +260,8 @@ void And::genBoolExp (int truelabel, int falselabel)
 		_right->genBoolExp (truelabel, falselabel);
 	}
 }
+
+
 
 void Not::genBoolExp (int truelabel, int falselabel)
 {
@@ -374,3 +397,17 @@ void ContinueStmt::genStmt()
 }
 
 
+// void Xor::genBoolExp 
+// {
+// 	if  (_left->_type != _INT ||_right->_type != _INT)  {
+// 			emit("error");
+	    
+//     } else if  (_left == 0 ||_right == 0){ 
+// 		emit("1");
+// 	}
+// 	else
+// 	{
+// 		emit("0");
+// 	}
+	
+// }

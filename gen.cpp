@@ -305,13 +305,10 @@ void Block::genStmt()
 
 void SwitchStmt::genStmt()
 { 
-	int exitlabel = newlabel();
-	int default_stmt_label = newlabel();
+	// update - create labels 1,2,3 before default and exit
 	Object result = _exp->genExp();
-	// Cha res = Object(result);
 	Case* temp = _caselist;
 
-	exitlabels.push(exitlabel);
 	BreakStmt *case_break = new BreakStmt(_line);
 	if (_exp->_type == _INT)
 	{
@@ -319,38 +316,39 @@ void SwitchStmt::genStmt()
 
 		while (currect_case != NULL)
 		{
-			//temp->_label = newlabel();
+			currect_case->_label = newlabel();
 			continuelabels.push(currect_case->_label);
 			emit("if %s == %d goto label%d\n",result._string, currect_case->_number,currect_case->_label);
 			currect_case = currect_case->_next;
-		} 
+		}
 
 		currect_case = _caselist;
+		int default_stmt_label = newlabel();
+		emit("goto label%d\n", default_stmt_label);	
+
 		while (currect_case != NULL)
 		{
-			currect_case->_label = newlabel();
-			//emitlabel(currect_case->_label);
+			// currect_case->_label = newlabel();
+			emitlabel(currect_case->_label);
 			currect_case->_stmt->genStmt();
 			if (currect_case->_hasBreak)
 				case_break->genStmt();
 			currect_case = currect_case->_next;
+			emit("goto label%d\n", default_stmt_label);	
 		}
+
 		currect_case = _caselist;
-
-		emit("goto label%d\n", default_stmt_label);	
-
 		emitlabel(default_stmt_label);
 		_default_stmt->genStmt();
 		case_break->genStmt();
-
 		currect_case = _caselist;
-
 	}
 	else
 	{
 		errorMsg("switch stmt - int Expected in line num: %d", _line);
 	}
-	
+	int exitlabel = newlabel();
+	exitlabels.push(exitlabel);
 	exitlabels.pop();
 	emitlabel(exitlabel);
 

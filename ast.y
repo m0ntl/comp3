@@ -15,7 +15,7 @@ int errors;
 }
 
 %code requires {
-// #include "gen.h"
+#include "gen.h"
 #include "ast.h"
 }
 
@@ -38,6 +38,7 @@ int errors;
    IfStmt *if_stmt;
    WhileStmt *while_stmt;
    SwitchStmt *switch_stmt;
+   RepeatStmt *repeat_stmt;
    Case *caselist; //points to first Case in the list
    Case *mycase;
    BreakStmt *break_stmt;
@@ -49,10 +50,10 @@ int errors;
 
 %token <ival> INT_NUM
 %token <fval> FLOAT_NUM
-%token <op> ADDOP MULOP RELOP XOROP
+%token <op> ADDOP MULOP RELOP XOR
 %token <name> ID
 
-%token READ IF ELSE WHILE  FOR INT FLOAT
+%token READ IF ELSE WHILE  FOR INT FLOAT REPEAT
 %token OR AND NOT NAND SWITCH CASE DEFAULT BREAK CONTINUE
 %type <_type> type
 
@@ -66,6 +67,7 @@ int errors;
 %type <while_stmt> while_stmt
 %type <if_stmt>  if_stmt
 %type <switch_stmt> switch_stmt;
+%type <repeat_stmt> repeat_stmt;
 %type <caselist> caselist
 %type <mycase> case
 %type <hasBreak> optional_break;
@@ -103,6 +105,7 @@ stmt       :  assign_stmt { $$ = $1; } |
 	          if_stmt     { $$ = $1; } |
 			  for_stmt    { $$ = 0;  } | /* not implemented yet */
 			  switch_stmt { $$ = $1; } |
+        repeat_stmt { $$ = $1; } |
 			  break_stmt  { $$ = $1; } |
               continue_stmt { $$ = $1;}|
 			  block       { $$ = $1; } ;
@@ -129,6 +132,7 @@ switch_stmt : SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmt '}' { $$ =
 caselist : case caselist { $1->_next = $2;   
                            $$ = $1; };
         						   
+repeat_stmt : REPEAT '(' expression ')'  stmt  { $$ = new RepeatStmt ($3, $5); };
 
 caselist : case  { $$ = $1;};
 
@@ -156,8 +160,9 @@ stmtlist:  /* empty */ { $$ = NULL; };
 expression : expression ADDOP expression {
                   $$ = new BinaryOp ($2, $1, $3, @2.first_line); } |
 		     expression MULOP expression {
+                  $$ = new BinaryOp ($2, $1, $3, @2.first_line); } |
+		     expression XOR expression {
                   $$ = new BinaryOp ($2, $1, $3, @2.first_line); };
-
 
 expression: '(' expression ')' { $$ = $2; } |
             ID          { $$ = new IdNode ($1, @1.first_line);} |
@@ -167,6 +172,9 @@ expression: '(' expression ')' { $$ = $2; } |
 
 			
 boolexp: expression RELOP expression { $$ = new SimpleBoolExp ($2, $1, $3); };
+
+// boolexp: expression XOR expression { $$ = new SimpleBoolExp ($2, $1, $3); };
+
 
 boolexp: boolexp OR boolexp { $$ = new Or ($1, $3); } |
          boolexp AND boolexp { $$ = new And ($1, $3); } |

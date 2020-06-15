@@ -57,6 +57,7 @@ public:
 	int _line;  // source line number of operator
 };
 
+
 class NumNode : public Exp {
 public:
 	Object genExp(); // override
@@ -191,6 +192,18 @@ public:
 	 void genStmt (); // override			  
 
      BoolExp *_condition;
+	 Stmt *_body;
+};
+
+class RepeatStmt: public Stmt {
+public: 
+     RepeatStmt (Exp *exp, Stmt *body)
+	          : Stmt ()
+	          { _exp = exp; _body = body; }
+
+	 void genStmt (); // override			  
+
+     Exp *_exp;
 	 Stmt *_body;
 };
 

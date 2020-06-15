@@ -33,8 +33,7 @@ extern int atoi (const char *);
 ">="        { yylval.op = GE; return RELOP; }
 "=="        { yylval.op = EQ; return RELOP; }
 "!="        { yylval.op = NE; return RELOP; }
-
-"^"        { return XOR;}       
+"^"         { yylval.op = XOR_OP; return XOR;}       
 
 
 [()=;:{}]      { return yytext[0]; }
@@ -55,7 +54,8 @@ extern int atoi (const char *);
 "break"    { return BREAK; }
 "continue" { return CONTINUE;}
 "read"     { return READ;}
-
+"repeat"    {return REPEAT;}
+ 
 [a-zA-Z][A-Za-z_]*  {  strcpy (yylval.name, yytext); return ID; }
 
   /* C++ style comments: */

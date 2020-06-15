@@ -79,6 +79,7 @@ struct operator_names
 opNames [] = { {"+", "<+>"},
                {"-", "<->"},
 			   {"*", "<*>"},
+			   {"^", "<^>"},
 			   {"/", "</>"}};
 
 /* convert operator  to  string  suitable for the given type
@@ -95,43 +96,52 @@ opName (enum op op, myType t)
 	    return opNames [op].float_name;
 }
 
+// Object XOROp::genExp () 
+// {
+// 	if (_left->_type != _right->_type)
+// 		if(_left->_type != _INT) 
+// 		{
+// 			return Object(); //  this means an error was found
+// 		}
+    
+// 	Object left_operand_result = _left->genExp ();
+// 	Object right_operand_result = _right->genExp ();
+	
+// 	Object result = newTemp ();
+	
+// 	const char *the_op = opName (_op, _type);
+
+//   	emit ("%s = %s %s %s\n", result._string, left_operand_result._string, 
+//                                    the_op, right_operand_result._string);
+// 	return result;
+// }
+
 Object BinaryOp::genExp ()
 {
     if (_left->_type != _right->_type)
         return Object(); //  this means an error was found
-    	 	
+	const char *the_op = opName (_op, _type);
+
+	if(strcmp(the_op, "XOR"))
+	{
+		if(_left->_type != _INT)
+		{
+			errorMsg("not int");
+			return Object(); //  this means an error was found
+		}
+	}	 	
 	Object left_operand_result = _left->genExp ();
 	Object right_operand_result = _right->genExp ();
 	
 	Object result = newTemp ();
 	
-	const char *the_op = opName (_op, _type);
+	
 
   	emit ("%s = %s %s %s\n", result._string, left_operand_result._string, 
                                    the_op, right_operand_result._string);
 	return result;
 }
 
-// Object Binary2Op::genExp ()
-// {
-//     if (_left->_type != _right->_type)
-//         return Object(); //  this means an error was found
-// 	// if (_left->_type != _right->_type)
-//     //     return Object(); //  this means an error was found
-
-// 	// Object left_operand_result = _left->genExp ();
-// 	// Object right_operand_result = _right->genExp ();
-	
-// 	// Object result = newTemp ();
-	
-// 	// const char *the_op = opName (_op, _type);
-// 	if(_left == 0){
-
-//   	emit ("%s = %s %s %s\n", result._string, left_operand_result._string, 
-//                                    the_op, right_operand_result._string);
-// 				}
-// 	return result;
-// }
 
 Object NumNode::genExp () 
 {
@@ -186,6 +196,9 @@ void SimpleBoolExp::genBoolExp (int truelabel, int falselabel)
 		case NE:
 		    the_op = "!=";
 			break;
+		// case XOR_OP:
+		//     the_op = "^";
+		// 	break;	
 		default:
 		    fprintf (stderr, "internal compiler error #3\n"); exit (1);
 	}
@@ -309,13 +322,31 @@ void WhileStmt::genStmt()
 	int exitlabel = newlabel ();
 	
 	emitlabel(condlabel);
+	emit("label 1 ?? -- %d",condlabel);
+	continuelabels.push(condlabel);
 	_condition->genBoolExp (FALL_THROUGH, exitlabel);
-	
-	
 	
 	_body->genStmt ();
 	
 	
+	emit ("goto label%d\n", condlabel);
+	//  continuelabels.pop();
+	emitlabel(exitlabel);
+}
+
+void RepeatStmt::genStmt()
+{
+    int condlabel = newlabel ();
+	int exitlabel = newlabel ();
+	
+	Object result = _exp->genExp();
+
+	emitlabel(condlabel);
+	emit("if %s <= 0 goto label%d\n",result._string, exitlabel);
+	_body->genStmt ();
+			emit ("\n");
+	emit ("%s = %s - 1\n", result._string,result._string);
+
 	emit ("goto label%d\n", condlabel);
 	emitlabel(exitlabel);
 }
@@ -348,6 +379,9 @@ void SwitchStmt::genStmt()
 		currect_case = _caselist;
 		int default_stmt_label = newlabel();
 		emit("goto label%d\n", default_stmt_label);	
+		int exitlabel = newlabel();
+		exitlabels.push(exitlabel);
+
 
 		while (currect_case != NULL)
 		{
@@ -355,25 +389,27 @@ void SwitchStmt::genStmt()
 			emitlabel(currect_case->_label);
 			currect_case->_stmt->genStmt();
 			if (currect_case->_hasBreak)
+			{
 				case_break->genStmt();
+			}
+			
 			currect_case = currect_case->_next;
-			emit("goto label%d\n", default_stmt_label);	
+			emit("goto label%d\n", exitlabel);	
 		}
 
 		currect_case = _caselist;
 		emitlabel(default_stmt_label);
 		_default_stmt->genStmt();
-		case_break->genStmt();
+		// case_break->genStmt();
 		currect_case = _caselist;
+		exitlabels.pop();
+		emitlabel(exitlabel);
 	}
 	else
 	{
 		errorMsg("switch stmt - int Expected in line num: %d", _line);
 	}
-	int exitlabel = newlabel();
-	exitlabels.push(exitlabel);
-	exitlabels.pop();
-	emitlabel(exitlabel);
+
 
 }
 
@@ -393,21 +429,10 @@ void BreakStmt::genStmt()
 	
 void ContinueStmt::genStmt()
 {
-    emit("continue statements not implemented yet\n");
+	int newlabell = newlabel ();
+	// print(continuelabels.begin());
+	emit("continue-->");
+	// emitlabel(label);
+	// continuelabels.push(label);
 }
 
-
-// void Xor::genBoolExp 
-// {
-// 	if  (_left->_type != _INT ||_right->_type != _INT)  {
-// 			emit("error");
-	    
-//     } else if  (_left == 0 ||_right == 0){ 
-// 		emit("1");
-// 	}
-// 	else
-// 	{
-// 		emit("0");
-// 	}
-	
-// }

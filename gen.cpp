@@ -126,7 +126,7 @@ Object BinaryOp::genExp ()
 	{
 		if(_left->_type != _INT)
 		{
-			errorMsg("not int");
+			errorMsg("not int!!\n");
 			return Object(); //  this means an error was found
 		}
 	}	 	
@@ -322,7 +322,6 @@ void WhileStmt::genStmt()
 	int exitlabel = newlabel ();
 	
 	emitlabel(condlabel);
-	emit("label 1 ?? -- %d",condlabel);
 	continuelabels.push(condlabel);
 	_condition->genBoolExp (FALL_THROUGH, exitlabel);
 	
@@ -330,7 +329,7 @@ void WhileStmt::genStmt()
 	
 	
 	emit ("goto label%d\n", condlabel);
-	//  continuelabels.pop();
+	 continuelabels.pop();
 	emitlabel(exitlabel);
 }
 
@@ -429,9 +428,9 @@ void BreakStmt::genStmt()
 	
 void ContinueStmt::genStmt()
 {
-	int newlabell = newlabel ();
-	// print(continuelabels.begin());
-	emit("continue-->");
+	// int newlabell = newlabel ();
+	// newlabell = ; 
+	emit ("goto label%d\n", continuelabels.top());
 	// emitlabel(label);
 	// continuelabels.push(label);
 }

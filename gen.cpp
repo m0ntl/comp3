@@ -122,14 +122,15 @@ Object BinaryOp::genExp ()
         return Object(); //  this means an error was found
 	const char *the_op = opName (_op, _type);
 
-	if(strcmp(the_op, "XOR"))
+	if(strcmp(the_op, "XOR") == 0 )
 	{
 		if(_left->_type != _INT)
 		{
 			errorMsg("not int!!\n");
 			return Object(); //  this means an error was found
 		}
-	}	 	
+	}
+
 	Object left_operand_result = _left->genExp ();
 	Object right_operand_result = _right->genExp ();
 	
@@ -274,34 +275,35 @@ void And::genBoolExp (int truelabel, int falselabel)
 	}
 }
 
-// void Nand::genBoolExp (int truelabel, int falselabel)
-// {
-//     if (truelabel == FALL_THROUGH && falselabel == FALL_THROUGH)
-// 	    return; // no need for code 
+void Nand::genBoolExp (int truelabel, int falselabel)
+{
+    if (truelabel == FALL_THROUGH && falselabel == FALL_THROUGH)
+	    return; // no need for code 
 		
-// 	if  (truelabel == FALL_THROUGH) {
-// 	    _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and evaluate
-// 		                                 // right operand.
-//                            falselabel); // if left operand is false then the AND expression is
-//                                         // false so jump to falselabel);
-//         _right->genBoolExp (FALL_THROUGH, falselabel);
-//     } else if (falselabel == FALL_THROUGH) {
-// 	    int next_label = newlabel(); // FALL_THROUGH implemented by jumping to next_label
-//         _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and
-//                                          // evaluate right operand
-//                            next_label); // if left operand is false then the AND expression 
-//                                         //  is false so jump to next_label (thus falling through to
-//                                         // the code following the code for the AND expression)
-//         _right->genBoolExp (truelabel, FALL_THROUGH);
-// 		emitlabel(next_label);
-//     } else { // no fall through
-//         _left->genBoolExp (FALL_THROUGH, 	// if left operand is true then fall through and
-//                                          // evaluate right operand
-// 						   falselabel); // if left operand is false then the AND expression is false
-// 						                // so jump to falselabel (without evaluating the right operand)
-// 		_right->genBoolExp (truelabel, falselabel);
-// 	}
-// }
+	// if  (truelabel == FALL_THROUGH) {
+	//     _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and evaluate
+	// 	                                 // right operand.
+    //                        truelabel); // if left operand is false then the AND expression is
+    //                                     // false so jump to falselabel);
+    //     _right->genBoolExp (falselabel, FALL_THROUGH);
+    // } else if (falselabel == FALL_THROUGH) {
+	//     int next_label = newlabel(); // FALL_THROUGH implemented by jumping to next_label
+    //     _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and
+    //                                      // evaluate right operand
+    //                        next_label); // if left operand is false then the AND expression 
+    //                                     //  is false so jump to next_label (thus falling through to
+    //                                     // the code following the code for the AND expression)
+    //     _right->genBoolExp (truelabel, FALL_THROUGH);
+	// 	emitlabel(next_label);
+    // } else { // no fall through
+        
+	// }
+	_left->genBoolExp (falselabel, 	// if left operand is true then fall through and
+                                         // evaluate right operand
+						   falselabel); // if left operand is false then the AND expression is false
+						                // so jump to falselabel (without evaluating the right operand)
+	_right->genBoolExp (truelabel, falselabel);
+}
 
 void Not::genBoolExp (int truelabel, int falselabel)
 {
@@ -461,4 +463,15 @@ void ContinueStmt::genStmt()
 	// emitlabel(label);
 	// continuelabels.push(label);
 }
+
+
+
+// declarations: declarations type ID ';' { if (!(putSymbol ($3, $2))) 
+//                                   errorMsg ("line %d: redeclaration of %s\n",
+//                       @3.first_line, $3); }
+// | declarations ID '=' type ';' {
+//     printf("found definition: %s", $4);
+//     if (!(putSymbol ($2, $4))) 
+//       errorMsg ("line %d: redeclaration of %s\n",@2.first_line, $2);
+// } | /* empty */ ;
 

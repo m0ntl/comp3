@@ -1,0 +1,6 @@
+/* example: while stmt with condition using AND */
+
+a = iota; 
+
+
+	

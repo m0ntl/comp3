@@ -62,6 +62,7 @@ class NumNode : public Exp {
 public:
 	Object genExp(); // override
 	
+    // NumNode (int ival) { _u.ival = ival; _type = _IOTA;}
     NumNode (int ival) { _u.ival = ival; _type = _INT;}
     NumNode (double fval) { _u.fval = fval; _type = _FLOAT;}
 	
@@ -129,6 +130,14 @@ public:
 	 BoolExp *_right; // right operand
 };
 
+class Nand : public BoolExp {
+public:
+     Nand (BoolExp *left, BoolExp *right) { _left = left; _right = right; }
+	 void genBoolExp (int truelabel, int falselabel); // override
+	 
+	 BoolExp *_left; // left operand
+	 BoolExp *_right; // right operand
+};
 
 class Not : public BoolExp {
 public:

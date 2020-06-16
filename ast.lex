@@ -54,7 +54,8 @@ extern int atoi (const char *);
 "break"    { return BREAK; }
 "continue" { return CONTINUE;}
 "read"     { return READ;}
-"repeat"    {return REPEAT;}
+"repeat"   {return REPEAT;}
+"iota"     {return IOTA;}
  
 [a-zA-Z][A-Za-z_]*  {  strcpy (yylval.name, yytext); return ID; }
 

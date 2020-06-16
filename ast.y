@@ -54,7 +54,7 @@ int errors;
 %token <name> ID
 
 %token READ IF ELSE WHILE  FOR INT FLOAT REPEAT
-%token OR AND NOT NAND SWITCH CASE DEFAULT BREAK CONTINUE
+%token OR AND NOT NAND SWITCH CASE DEFAULT BREAK CONTINUE IOTA
 %type <_type> type
 
 %type <exp> expression
@@ -92,11 +92,13 @@ program    : declarations stmt {
 
 declarations: declarations type ID ';' { if (!(putSymbol ($3, $2))) 
                                              errorMsg ("line %d: redeclaration of %s\n",
-											            @3.first_line, $3); }
-            | /* empty */ ;
+											            @3.first_line, $3); 
+                                   } | /* empty */ ;
 
-type: INT { $$ = _INT; } |
-      FLOAT { $$ = _FLOAT; };			  
+
+type: INT { $$ = _INT;     } |
+      FLOAT { $$ = _FLOAT; } ;
+  //    IOTA { $$ = _IOTA;   } ;			  
 
 stmt       :  assign_stmt { $$ = $1; } |
               read_stmt { $$ = $1; } |
@@ -178,7 +180,7 @@ boolexp: expression RELOP expression { $$ = new SimpleBoolExp ($2, $1, $3); };
 
 boolexp: boolexp OR boolexp { $$ = new Or ($1, $3); } |
          boolexp AND boolexp { $$ = new And ($1, $3); } |
-	    	// boolexp NAND boolexp { $$ = new Nand($1, $3); } |
+	    	 boolexp NAND boolexp { $$ = new Nand($1, $3); } |
          NOT '(' boolexp ')' { $$ = new Not ($3); } |
 		 '(' boolexp ')'  { $$ = $2;}
 		 ;

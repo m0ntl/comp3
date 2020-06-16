@@ -29,6 +29,22 @@ BinaryOp::BinaryOp (enum op op, Exp *left, Exp *right, int line)
         _type = left->_type;
 }
 
+// BinaryOp::BinaryOp (enum op op, Exp *left, Exp *right, int line) 
+// {
+//     this->_op = op; 
+// 	this->_left = left; 
+// 	this->_right = right;
+// 	_line = line;
+
+// 	if (left->_type != right->_type) {
+// 	    errorMsg ("line %d: operator %s applied to operands\
+//  having different types\n", line, opName (op, _INT));
+// 		_type = _FLOAT;
+// 	}
+// 	else
+//         _type = left->_type;
+// }
+
 AssignStmt::AssignStmt (IdNode *lhs, Exp *rhs, int line) 
    : Stmt ()  // call base class (super class) constructor
 {

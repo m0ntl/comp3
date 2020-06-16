@@ -158,6 +158,7 @@ stmtlist:  stmt stmtlist {  $1->_next = $2;  // also works when $2 is NULL
                             $$ = $1;  
 						 };
 stmtlist:  /* empty */ { $$ = NULL; };
+
 	  
 expression : expression ADDOP expression {
                   $$ = new BinaryOp ($2, $1, $3, @2.first_line); } |
@@ -170,6 +171,7 @@ expression: '(' expression ')' { $$ = $2; } |
             ID          { $$ = new IdNode ($1, @1.first_line);} |
             INT_NUM     { $$ = new NumNode ($1); } |
 			FLOAT_NUM   { $$ = new NumNode ($1); };
+
 
 
 			

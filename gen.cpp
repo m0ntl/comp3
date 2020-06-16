@@ -135,8 +135,7 @@ Object BinaryOp::genExp ()
 	Object right_operand_result = _right->genExp ();
 	
 	Object result = newTemp ();
-	
-	
+
 
   	emit ("%s = %s %s %s\n", result._string, left_operand_result._string, 
                                    the_op, right_operand_result._string);
@@ -277,32 +276,30 @@ void And::genBoolExp (int truelabel, int falselabel)
 
 void Nand::genBoolExp (int truelabel, int falselabel)
 {
-    if (truelabel == FALL_THROUGH && falselabel == FALL_THROUGH)
-	    return; // no need for code 
-		
-	// if  (truelabel == FALL_THROUGH) {
-	//     _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and evaluate
-	// 	                                 // right operand.
-    //                        truelabel); // if left operand is false then the AND expression is
-    //                                     // false so jump to falselabel);
-    //     _right->genBoolExp (falselabel, FALL_THROUGH);
-    // } else if (falselabel == FALL_THROUGH) {
-	//     int next_label = newlabel(); // FALL_THROUGH implemented by jumping to next_label
-    //     _left->genBoolExp (FALL_THROUGH, // if left operand is true then fall through and
-    //                                      // evaluate right operand
-    //                        next_label); // if left operand is false then the AND expression 
-    //                                     //  is false so jump to next_label (thus falling through to
-    //                                     // the code following the code for the AND expression)
-    //     _right->genBoolExp (truelabel, FALL_THROUGH);
-	// 	emitlabel(next_label);
-    // } else { // no fall through
-        
-	// }
-	_left->genBoolExp (falselabel, 	// if left operand is true then fall through and
+    if (truelabel == FALL_THROUGH && falselabel == FALL_THROUGH){				
+		return; // no need for code
+	}
+	if  (falselabel == FALL_THROUGH) {
+	    _left->genBoolExp (FALL_THROUGH, falselabel);
+
+        _right->genBoolExp (FALL_THROUGH, falselabel);
+    
+    } else if (truelabel == FALL_THROUGH) {
+	    int next_label = newlabel();
+        _left->genBoolExp (FALL_THROUGH, 
+                                         
+                           next_label); 
+        _right->genBoolExp (truelabel, FALL_THROUGH);
+        _right->genBoolExp (falselabel, FALL_THROUGH);
+		emitlabel(next_label);
+
+    } else { // no fall through
+        _left->genBoolExp (FALL_THROUGH, 	// if left operand is true then fall through and
                                          // evaluate right operand
 						   falselabel); // if left operand is false then the AND expression is false
 						                // so jump to falselabel (without evaluating the right operand)
-	_right->genBoolExp (truelabel, falselabel);
+		_right->genBoolExp (truelabel, falselabel);
+	}
 }
 
 void Not::genBoolExp (int truelabel, int falselabel)
@@ -329,7 +326,6 @@ void AssignStmt::genStmt()
 	if (idtype == _rhs->_type)
 	  emit ("%s = %s\n", _lhs->_name, result._string);
 }
-
 
 void IfStmt::genStmt()
 {
